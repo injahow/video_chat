@@ -4,10 +4,9 @@ import ipaddress
 from pyclbr import Function
 import sys
 import time
-from tkinter.messagebox import NO
 
 import netifaces
-from PyQt5.QtCore import Qt, QBuffer, QByteArray, QIODevice, QThread
+from PyQt5.QtCore import Qt, QBuffer, QByteArray, QIODevice
 from PyQt5.QtGui import QPixmap, QCursor, QImageReader
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMainWindow, QMessageBox, QMenu, QAction, QFileDialog
 
@@ -43,6 +42,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.msg_type = ''
 
         self.msg_server = MessageServer()
+        self.msg_server._log.connect(self.show_log)
         self.msg_server._msg.connect(self.show_msg)
         self.msg_server._video.connect(self.show_video)
         self.msg_server._audio.connect(self.play_audio)
@@ -148,14 +148,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                     continue
                 ips.append(str(x))
 
-    def run_connect_btn(self):
-        if not self.msg_client:
-            self.run_msg_client()
-            self.pushButton_connect.setText('关闭')
-        elif self.msg_client.is_connected:
-            self.close_msg_client()
-            self.pushButton_connect.setText('连接')
-
     def video_full(self):
         self.to_ip = self.lineEdit_ip.text()
         self.broadcast_ip = self.lineEdit_broadcast.text()
@@ -167,6 +159,14 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         else:
             self._setupUi()
             self.is_full_video = False
+
+    def run_connect_btn(self):
+        if not self.msg_client:
+            self.run_msg_client()
+            self.pushButton_connect.setText('关闭')
+        elif self.msg_client.is_connected:
+            self.close_msg_client()
+            self.pushButton_connect.setText('连接')
 
     def run_video_btn(self):
         if not self.video_sender:
@@ -216,9 +216,10 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             # 创建视频发送线程
             self.video_sender = VideoSender(self.video_type)
             self.video_sender.open_server()
+            self.video_sender.set_sender(self.msg_client)
             # 连接信号，绑定回调事件
             self.video_sender._video_local.connect(self.show_video_src)
-            self.video_sender._video_sender.connect(self.get_video_sender)
+            # self.video_sender._video_sender.connect(self.get_video_sender)
             self.video_sender.start()
 
     def close_video_sender(self):
@@ -231,7 +232,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def run_audio_sender(self):
         if not self.audio_sender:
             self.audio_sender = AudioSender()
-            self.audio_sender._audio_sender.connect(self.get_audio_sender)
+            self.audio_sender.set_sender(self.msg_client)
+            # self.audio_sender._audio_sender.connect(self.get_audio_sender)
             self.audio_sender.open_server()
             self.audio_sender.start()
 
@@ -255,8 +257,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         if not filepath:
             return
         self.file_sender = FileSender(filepath)
+        self.file_sender.set_sender(self.msg_client)
         self.file_sender._print.connect(self.show_text)
-        self.file_sender._file_sender.connect(self.get_file_sender)
+        # self.file_sender._file_sender.connect(self.get_file_sender)
         self.file_sender.start()
 
     def close_file_sender(self):
@@ -301,12 +304,12 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     message, video, audio, file, text
     """
 
-    def get_video_sender(self, data: bytes):  # 用于发送视频
-        if not self.video_sender:
-            return
-        if not self.client_connected():
-            return
-        self.msg_client.sendall(b'video:::' + data)
+    # def get_video_sender(self, data: bytes):  # 用于发送视频
+    #     if not self.video_sender:
+    #         return
+    #     if not self.client_connected():
+    #         return
+    #     self.msg_client.sendall(b'video:::' + data)
 
     def get_audio_sender(self, data: bytes):  # 用于发送音频
         if not self.audio_sender:
@@ -315,22 +318,24 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             return
         self.msg_client.sendall(b'audio:::' + data)
 
-    def get_file_sender(self, data: bytes):  # 用于发送文件
-        if not self.file_sender:
-            return
-        if not self.client_connected():
-            return
-        self.msg_client.sendall(b'file:::' + data)
+    # def get_file_sender(self, data: bytes):  # 用于发送文件
+    #     if not self.file_sender:
+    #         return
+    #     if not self.client_connected():
+    #         return
+    #     self.msg_client.sendall(b'file:::' + data)
 
     def send_text(self):  # 绑定回车事件
         text = str(self.lineEdit_text.text())
         if not self.client_connected():
             self.show_log('text sender: no connect')
             return
-        self.msg_client.sendall(b'text:::' + text.encode())
+
         self.textBrowser_text.append(
             '<span style="color:blue">我: ' + text + '</span>')
         self.lineEdit_text.setText('')
+
+        self.msg_client.sendall(b'text:::' + text.encode())
 
     """
     线程回调
@@ -348,9 +353,10 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             if self.msg_client:
                 if self.msg_client.wait_ip == addr[0]:
                     self.msg_server.accept_connect(addr)
+                    self.msg_client.send_text('连接成功！')
                 else:
                     self.msg_server.close_connect(addr)
-
+                    self.msg_client.send_text('对方正处于连接状态！')
                 return
 
             question_msg = ('是否接受来至%s:%s的' % addr) + '连接？'
@@ -362,9 +368,11 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 # 同时发起对方连接的请求
                 self.lineEdit_ip.setText(addr[0])
                 self.run_connect_btn()
+                self.msg_client.send_text('连接成功！')
             else:
                 # 拒绝连接
                 self.msg_server.close_connect(addr)
+                self.msg_client.send_text('连接被拒绝！')
         else:
             pass
 
@@ -426,9 +434,13 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             print('no file downloader !!!')
 
     def show_text(self, text: str):
+        if not text:
+            return
         self.textBrowser_text.append(text)
 
     def show_log(self, text: str):  # 显示情况
+        if not text:
+            return
         self.show_text(f'<span style="color:grey">[info]:{text}</span>')
 
     def downloader_remind(self, msg: str):

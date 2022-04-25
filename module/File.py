@@ -4,6 +4,8 @@ import os
 
 from PyQt5.QtCore import QThread, pyqtSignal
 
+from module.Message import MessageClient
+
 from .utils import DataHandler
 
 dataHandler = DataHandler()
@@ -11,28 +13,32 @@ dataHandler = DataHandler()
 
 class FileSender(QThread):  # 文件发送者
     _print = pyqtSignal(str)
-    _file_sender = pyqtSignal(bytes)
 
     def __init__(self, file_path):
         super().__init__()
         self.file_path = file_path
         self.closed = False
 
-    def run(self):
+    def set_sender(self, msg_client: MessageClient):
+        self.msg_client = msg_client
 
+    def sendall(self, data: bytes):
+        if not self.msg_client:
+            return
+        self.msg_client.sendall(b'file:::' + data)
+
+    def run(self):
         file_name = os.path.basename(self.file_path)
         self._print.emit('[File]: ' + file_name + ' will send ...')
         with open(self.file_path, 'rb') as send_file:
-            self._file_sender.emit(
-                str('tag:' + file_name + ':open').encode())
+            self.sendall(str('tag:' + file_name + ':open').encode())
             while not self.closed:
-                send_data = send_file.read(10240)  # 10kb * 1000/s -> 1Mb/s
+                send_data = send_file.read(102400)  # 100kb * 1000/s -> 10Mb/s
                 if send_data:
-                    self._file_sender.emit(send_data)
+                    self.sendall(send_data)
                 else:
                     break
-            self._file_sender.emit(
-                str('tag:' + file_name + ':close').encode())
+            self.sendall(str('tag:' + file_name + ':close').encode())
         self._print.emit('[File]: ' + file_name + ' send ok !')
 
 

@@ -3,6 +3,8 @@
 from pyaudio import paInt16, PyAudio
 from PyQt5.QtCore import QThread, pyqtSignal
 
+from module.Message import MessageClient
+
 
 CHUNK = 1024
 FORMAT = paInt16    # 格式
@@ -10,12 +12,12 @@ CHANNELS = 2    # 输入/输出通道数
 RATE = 44100    # 音频数据的采样频率
 
 
-class AudioSender(QThread):  # 发送方，服务器
-
-    _audio_sender = pyqtSignal(bytes)
+class AudioSender(QThread):  # 发送
+    _print = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
+        self.msg_client = None
         self.pyaudio = PyAudio()
         self.stream = None
         self.closed = False
@@ -28,7 +30,7 @@ class AudioSender(QThread):  # 发送方，服务器
             self.stream = self.pyaudio.open(
                 format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
         except:
-            print('Audio open error !')
+            self._print.emit('[audio]: open error !')
 
     def close_server(self):
 
@@ -39,18 +41,26 @@ class AudioSender(QThread):  # 发送方，服务器
         if self.pyaudio:
             self.pyaudio.terminate()
 
+    def set_sender(self, msg_client: MessageClient):
+        self.msg_client = msg_client
+
+    def sendall(self, data: bytes):
+        if not self.msg_client:
+            return
+        self.msg_client.sendall(b'audio:::' + data)
+
     def run(self):
-        
+
         while not self.closed:
             try:
                 data = self.stream.read(CHUNK*10)
-                self._audio_sender.emit(data)
+                self.sendall(data)
                 self.msleep(10)
             except:
                 pass
 
 
-class AudioPlayer(QThread):  # 接收方-播放
+class AudioPlayer(QThread):  # 接收
 
     def __init__(self):
         super().__init__()

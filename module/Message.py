@@ -15,6 +15,7 @@ dataHandler = DataHandler()
 class MessageServer(Server, QThread):  # 信息接收者
 
     #  定义信号
+    _log = pyqtSignal(str)
     _msg = pyqtSignal(str)  # 连接消息处理
     _video = pyqtSignal(bytes)  # 显示接收的视频
     _audio = pyqtSignal(bytes)  # 播放接收的音频
@@ -29,7 +30,6 @@ class MessageServer(Server, QThread):  # 信息接收者
 
         # 实现 Server 统一回调，处理客户端请求
         """ msg 统一格式:
-        message:::[connect, close_*, ...]
         video:::ctx
         audio:::ctx
         file:::ctx
@@ -38,11 +38,7 @@ class MessageServer(Server, QThread):  # 信息接收者
         data_type, data = msg.split(b':::', 1)
         data_type = data_type.decode()
 
-        if data_type == 'message':
-            # todo
-            # self._msg.emit(addr[0] + ':' + addr[1] + ':' + data.decode())
-            print('aaaaaaaaaaaaaa')
-        elif data_type == 'video':
+        if data_type == 'video':
             self._video.emit(data)
         elif data_type == 'audio':
             self._audio.emit(data)
@@ -56,6 +52,11 @@ class MessageServer(Server, QThread):  # 信息接收者
 
     def connect_remind(self, addr):
         self._msg.emit(addr[0] + ':' + str(addr[1]) + ':connect')
+        # return super().connect_remind(addr)
+
+    def _print(self, text: str):
+        self._log.emit(text)
+        # return super()._print(text)
 
     def run(self):
         try:
@@ -79,6 +80,18 @@ class MessageClient(Client, QThread):  # 信息发起者
 
     def _print(self, msg: str):
         self._log.emit(msg)
+
+    def send_video(self, msg: bytes):
+        self.sendall(b'video:::' + msg)
+
+    def send_audio(self, msg: bytes):
+        self.sendall(b'audio:::' + msg)
+
+    def send_file(self, msg: bytes):
+        self.sendall(b'file:::' + msg)
+
+    def send_text(self, msg: str):
+        self.sendall(b'text:::' + msg.encode())
 
     def run(self):
         try:

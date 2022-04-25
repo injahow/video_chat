@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from abc import abstractmethod
 import os
 import socket
 import ssl
@@ -7,7 +8,7 @@ import struct
 import pickle
 import threading
 
-from .utils import DataHandler, SSLTools
+from module.utils import DataHandler, SSLTools
 
 dataHandler = DataHandler()
 
@@ -32,6 +33,7 @@ class Server:
 
         self.ctx = ctx
 
+    @abstractmethod
     def emit(self, conn, addr, msg_bytes):
         # 用于子类重写
         print(conn)
@@ -39,9 +41,16 @@ class Server:
         data_type, _ = msg_bytes.split(b':::', 1)
         print('data_type: ' + data_type)
 
+    @abstractmethod
     def connect_remind(self, addr):
         # 用于子类重写
         print(addr)
+
+    @abstractmethod
+    def _print(self, text: str):
+        if not text:
+            return
+        print(text)
 
     def accept_connect(self, addr):
         print('Accept connection from %s:%s !' % addr)
@@ -59,7 +68,7 @@ class Server:
 
     def connect_thread(self, conn: ssl.SSLSocket, addr: tuple):
         """
-        连接线程
+        连接线程：用于接收客户端消息
         """
         conn_map = self.conn_map
 
@@ -86,7 +95,7 @@ class Server:
                 break
 
         conn_map.pop(addr)
-        print('%s:%s connect close !!!' % addr)
+        self._print('%s:%s connect close !!!' % addr)
         conn.close()
 
     def listen(self):
@@ -117,24 +126,27 @@ class Client:
         self.is_connected = False
         self.wait_ip = ''
 
-    def _print():
-        pass
+    @abstractmethod
+    def _print(self, text: str):
+        if not text:
+            return
+        print(text)
 
     def get_connect(self, tar_ip: str):
-        print('will connect to ' + tar_ip)
+        self._print('will connect to ' + tar_ip)
         try:
             # 与服务端建立socket连接
             self.sock = socket.create_connection(
-                (tar_ip, 9876), timeout=10)
+                (tar_ip, 9876), timeout=3)
             # 将socket打包成 SSL socket
             # 注意 server_hostname 是指服务端证书中设置的CN
             self.ssock = self.ctx.wrap_socket(
                 self.sock, server_hostname='127.0.0.1')
             self.is_connected = True
-            print('wait connection to success !')
+            self._print('connectioning, wait for confirmation ...')
             self.wait_ip = tar_ip
         except:
-            print('create connection failed ?')
+            self._print('create connection failed ?')
             self.is_connected = False
 
     def close_connect(self):

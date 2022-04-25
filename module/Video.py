@@ -7,6 +7,7 @@ from PyQt5.QtCore import QBuffer, QByteArray, QIODevice, QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QImage
 
+from module.Message import MessageClient
 from .utils import DataHandler
 
 dataHandler = DataHandler()
@@ -26,13 +27,22 @@ def qImg2bytes(qImg):
 class VideoSender(QThread):
 
     _video_local = pyqtSignal(QImage)
-    _video_sender = pyqtSignal(bytes)
 
     def __init__(self, video_type='camera'):
         super().__init__()
+        self.msg_client = None
+
         self.video_type = video_type
         self.cap = None
         self.closed = True
+
+    def set_sender(self, msg_client: MessageClient):
+        self.msg_client = msg_client
+
+    def sendall(self, data: bytes):
+        if not self.msg_client:
+            return
+        self.msg_client.sendall(b'video:::' + data)
 
     def quit(self):
         self.close_server()
@@ -62,7 +72,7 @@ class VideoSender(QThread):
 
     def run(self):
         # 1.获取本地video显示在主程序
-        
+
         while not self.closed:
             if self.video_type == 'camera':
                 ret, frame = self.cap.read()
@@ -71,7 +81,7 @@ class VideoSender(QThread):
                 # frame = cv2.resize(frame, (1280, 720))
                 height, width = frame.shape[:2]
                 bytesPerLine = 3 * width
-                q_img = QImage(frame.data , width, height, bytesPerLine,
+                q_img = QImage(frame.data, width, height, bytesPerLine,
                                QImage.Format_RGB888).rgbSwapped()
 
             elif self.video_type == 'desktop':
@@ -82,6 +92,6 @@ class VideoSender(QThread):
 
             # 2.发送 video
             send_data = qImg2bytes(q_img)
-            self._video_sender.emit(send_data)
+            self.sendall(send_data)
             self.msleep(40)
         pass
