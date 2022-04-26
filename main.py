@@ -9,6 +9,7 @@ import netifaces
 from PyQt5.QtCore import Qt, QBuffer, QByteArray, QIODevice
 from PyQt5.QtGui import QPixmap, QCursor, QImageReader
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMainWindow, QMessageBox, QMenu, QAction, QFileDialog
+from numpy import False_
 
 from ui.Ui_main import Ui_MainWindow
 from module.Message import MessageServer, MessageClient
@@ -20,8 +21,8 @@ from module.File import FileSender, FileDownloader
 class MyMainForm(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None):
-        QMainWindow.__init__(self, parent)
         Ui_MainWindow.__init__(self)
+        QMainWindow.__init__(self, parent)
 
         self.video_type = 'camera'  # camera or desktop
         self.is_full_video = False
@@ -37,27 +38,34 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.live_server = None
         self.live_client = None
 
-        self.to_ip = '127.0.0.1'  # '127.0.0.1'
+        self.to_ip = '127.0.0.1'
         self.broadcast_ip = '192.168.31.255'
-        self.msg_type = ''
 
         self.msg_server = MessageServer()
-        self.msg_server._log.connect(self.show_log)
         self.msg_server._msg.connect(self.show_msg)
         self.msg_server._video.connect(self.show_video)
         self.msg_server._audio.connect(self.play_audio)
         self.msg_server._file.connect(self.download_file)
         self.msg_server._text.connect(self.show_text)
-
-        # self.msg_server._connect_question.connect(self.show_connect_question)
-
+        self.msg_server._log.connect(self.show_log)
         self.msg_server.start()
+
         self.msg_client = None
 
-        self._setupUi()
+        self._setupUi(True)
 
-    def _setupUi(self):
-        self.setupUi(self)
+    def _setupUi(self, is_first=False):
+        # 处理文本框
+        if is_first:
+            self.setupUi(self)
+
+        to_ip = self.lineEdit_ip.text()
+        broadcast_ip = self.lineEdit_broadcast.text()
+        browser_text = self.textBrowser_text.toHtml()
+        text = self.lineEdit_text.text()
+
+        if not is_first:
+            self.setupUi(self)
 
         self.pushButton_connect.clicked.connect(self.run_connect_btn)  # 开启连接
         self.pushButton_close.clicked.connect(self.close_all_threads)  # 关闭连接
@@ -82,8 +90,10 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.lineEdit_text.returnPressed.connect(self.send_text)  # 发送消息
 
         # 处理文本框
-        self.lineEdit_ip.setText(self.to_ip)
-        self.lineEdit_broadcast.setText(self.broadcast_ip)
+        self.lineEdit_ip.setText(to_ip)
+        self.lineEdit_broadcast.setText(broadcast_ip)
+        self.textBrowser_text.append(browser_text)
+        self.lineEdit_text.setText(text)
 
     def create_rightmenu(self):
         # 菜单对象
@@ -368,11 +378,11 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 # 同时发起对方连接的请求
                 self.lineEdit_ip.setText(addr[0])
                 self.run_connect_btn()
-                self.msg_client.send_text('连接成功！')
+                # self.msg_client.send_text('连接成功！')
             else:
                 # 拒绝连接
                 self.msg_server.close_connect(addr)
-                self.msg_client.send_text('连接被拒绝！')
+                # self.msg_client.send_text('连接被拒绝！')
         else:
             pass
 

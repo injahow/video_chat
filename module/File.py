@@ -25,7 +25,7 @@ class FileSender(QThread):  # 文件发送者
     def sendall(self, data: bytes):
         if not self.msg_client:
             return
-        self.msg_client.sendall(b'file:::' + data)
+        self.msg_client.send_file(data)
 
     def run(self):
         file_name = os.path.basename(self.file_path)

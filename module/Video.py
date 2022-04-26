@@ -39,11 +39,6 @@ class VideoSender(QThread):
     def set_sender(self, msg_client: MessageClient):
         self.msg_client = msg_client
 
-    def sendall(self, data: bytes):
-        if not self.msg_client:
-            return
-        self.msg_client.sendall(b'video:::' + data)
-
     def quit(self):
         self.close_server()
         self.wait()
@@ -70,9 +65,13 @@ class VideoSender(QThread):
             self.cap.release()
             self.cap = None
 
+    def sendall(self, data: bytes):
+        if not self.msg_client:
+            return
+        self.msg_client.send_video(data)
+
     def run(self):
         # 1.获取本地video显示在主程序
-
         while not self.closed:
             if self.video_type == 'camera':
                 ret, frame = self.cap.read()

@@ -47,7 +47,7 @@ class AudioSender(QThread):  # 发送
     def sendall(self, data: bytes):
         if not self.msg_client:
             return
-        self.msg_client.sendall(b'audio:::' + data)
+        self.msg_client.send_audio(data)
 
     def run(self):
 

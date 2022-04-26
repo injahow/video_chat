@@ -13,7 +13,7 @@ from module.utils import DataHandler, SSLTools
 dataHandler = DataHandler()
 
 
-class Server:
+class Server:  # data 接收者
     def __init__(self) -> None:
         self.address = ('', 9876)
         self.sock = None
@@ -34,23 +34,16 @@ class Server:
         self.ctx = ctx
 
     @abstractmethod
-    def emit(self, conn, addr, msg_bytes):
-        # 用于子类重写
-        print(conn)
-        print(addr)
-        data_type, _ = msg_bytes.split(b':::', 1)
-        print('data_type: ' + data_type)
+    def emit(self, conn, addr, msg: dict):
+        pass
 
     @abstractmethod
-    def connect_remind(self, addr):
-        # 用于子类重写
-        print(addr)
+    def connect_remind(self, addr: tuple):
+        pass
 
     @abstractmethod
     def _print(self, text: str):
-        if not text:
-            return
-        print(text)
+        pass
 
     def accept_connect(self, addr):
         print('Accept connection from %s:%s !' % addr)
@@ -66,6 +59,14 @@ class Server:
             self.conn_map.pop(addr)
             conn.close()
 
+    def sendall(self, frames):
+        senddata = pickle.dumps(frames)
+        senddata = dataHandler.encode(senddata)
+        try:
+            self.ssock.sendall(struct.pack('L', len(senddata)) + senddata)
+        except:
+            self._print('发送失败')
+
     def connect_thread(self, conn: ssl.SSLSocket, addr: tuple):
         """
         连接线程：用于接收客户端消息
@@ -74,6 +75,7 @@ class Server:
 
         data_buffer = b''
         payload_size = struct.calcsize('L')  # 结果为4
+
         while conn_map.get(addr):
             # 接收客户端信息，并解包
             try:
@@ -117,7 +119,7 @@ class Server:
             self.connect_remind(addr)
 
 
-class Client:
+class Client:  # data 发送者
     def __init__(self) -> None:
         self.sock = None
         self.ssock = None
@@ -128,9 +130,7 @@ class Client:
 
     @abstractmethod
     def _print(self, text: str):
-        if not text:
-            return
-        print(text)
+        pass
 
     def get_connect(self, tar_ip: str):
         self._print('will connect to ' + tar_ip)

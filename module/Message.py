@@ -5,11 +5,7 @@ import sys
 
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from .utils import DataHandler
-from .MyTCPSocket import Server, Client
-
-
-dataHandler = DataHandler()
+from module.TCPSocket import Server, Client
 
 
 class MessageServer(Server, QThread):  # 信息接收者
@@ -26,7 +22,7 @@ class MessageServer(Server, QThread):  # 信息接收者
         Server.__init__(self)
         QThread.__init__(self)
 
-    def emit(self, conn, addr, msg: bytes):
+    def emit(self, conn, addr, msg: dict):
 
         # 实现 Server 统一回调，处理客户端请求
         """ msg 统一格式:
@@ -35,8 +31,10 @@ class MessageServer(Server, QThread):  # 信息接收者
         file:::ctx
         text:::ctx
         """
-        data_type, data = msg.split(b':::', 1)
-        data_type = data_type.decode()
+        data_type = msg['type']
+        data = msg['data']
+        # , data = msg.split(b':::', 1)
+        # data_type = data_type.decode()
 
         if data_type == 'video':
             self._video.emit(data)
@@ -68,7 +66,7 @@ class MessageServer(Server, QThread):  # 信息接收者
 
 class MessageClient(Client, QThread):  # 信息发起者
     _msg = pyqtSignal(str)  # 连接消息处理
-    _log = pyqtSignal(str)  # 显示接收的文字
+    _log = pyqtSignal(str)  # 显示线程提示
 
     def __init__(self, tar_ip):
         Client.__init__(self)
@@ -78,20 +76,32 @@ class MessageClient(Client, QThread):  # 信息发起者
     def quit(self):
         self.close_connect()
 
-    def _print(self, msg: str):
-        self._log.emit(msg)
+    def _print(self, data: str):
+        self._log.emit(data)
 
-    def send_video(self, msg: bytes):
-        self.sendall(b'video:::' + msg)
+    def send_video(self, data: bytes):
+        self.sendall({
+            'type': 'video',
+            'data': data
+        })
 
-    def send_audio(self, msg: bytes):
-        self.sendall(b'audio:::' + msg)
+    def send_audio(self, data: bytes):
+        self.sendall({
+            'type': 'audio',
+            'data': data
+        })
 
-    def send_file(self, msg: bytes):
-        self.sendall(b'file:::' + msg)
+    def send_file(self, data: bytes):
+        self.sendall({
+            'type': 'file',
+            'data': data
+        })
 
-    def send_text(self, msg: str):
-        self.sendall(b'text:::' + msg.encode())
+    def send_text(self, data: str):
+        self.sendall({
+            'type': 'text',
+            'data': data.encode()
+        })
 
     def run(self):
         try:
