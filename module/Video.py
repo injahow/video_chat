@@ -8,9 +8,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QImage
 
 from module.Message import MessageClient
-from .utils import DataHandler
-
-dataHandler = DataHandler()
 
 
 def qImg2bytes(qImg):

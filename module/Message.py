@@ -45,8 +45,6 @@ class MessageServer(Server, QThread):  # 信息接收者
         elif data_type == 'text':
             self._text.emit(
                 addr[0] + '(' + str(addr[1]) + '): ' + data.decode())
-        else:
-            return super().emit(conn, addr, msg)
 
     def connect_remind(self, addr):
         self._msg.emit(addr[0] + ':' + str(addr[1]) + ':connect')
@@ -64,8 +62,8 @@ class MessageServer(Server, QThread):  # 信息接收者
             sys.exit(1)
 
 
-class MessageClient(Client, QThread):  # 信息发起者
-    _msg = pyqtSignal(str)  # 连接消息处理
+class MessageClient(Client, QThread):  # 信息发送者
+    # _msg = pyqtSignal(str)  # 连接消息处理
     _log = pyqtSignal(str)  # 显示线程提示
 
     def __init__(self, tar_ip):

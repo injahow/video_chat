@@ -6,10 +6,6 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 from module.Message import MessageClient
 
-from .utils import DataHandler
-
-dataHandler = DataHandler()
-
 
 class FileSender(QThread):  # 文件发送者
     _print = pyqtSignal(str)

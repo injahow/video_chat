@@ -345,7 +345,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             '<span style="color:blue">我: ' + text + '</span>')
         self.lineEdit_text.setText('')
 
-        self.msg_client.sendall(b'text:::' + text.encode())
+        self.msg_client.send_text(text)
 
     """
     线程回调
@@ -360,11 +360,13 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         data = data[2]
 
         if data == 'connect':
-            if self.msg_client:
+            if self.msg_client:  # 对方接受连接后的自动连接请求
                 if self.msg_client.wait_ip == addr[0]:
+                    # 自动连接
                     self.msg_server.accept_connect(addr)
                     self.msg_client.send_text('连接成功！')
                 else:
+                    # 自动拒绝
                     self.msg_server.close_connect(addr)
                     self.msg_client.send_text('对方正处于连接状态！')
                 return
@@ -373,16 +375,16 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             reply = QMessageBox.question(
                 self, '提示', question_msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
-                # 可以连接
+                # 接受连接
                 self.msg_server.accept_connect(addr)
                 # 同时发起对方连接的请求
                 self.lineEdit_ip.setText(addr[0])
                 self.run_connect_btn()
-                # self.msg_client.send_text('连接成功！')
+                self.msg_client.send_text('连接成功！')  # 异步
             else:
                 # 拒绝连接
                 self.msg_server.close_connect(addr)
-                # self.msg_client.send_text('连接被拒绝！')
+                # self.msg_client.send_text('连接被拒绝！')  # 异步
         else:
             pass
 
