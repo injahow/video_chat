@@ -358,11 +358,15 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <family>Agency FB</family>
+       <pointsize>10</pointsize>
       </font>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="placeholderText">
+      <string>留空不加密</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_5">
@@ -469,8 +473,38 @@ p, li { white-space: pre-wrap; }
      <height>29</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>广播质量</string>
+    </property>
+    <addaction name="action80"/>
+    <addaction name="action60"/>
+    <addaction name="action40"/>
+    <addaction name="action20"/>
+   </widget>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action80">
+   <property name="text">
+    <string>80</string>
+   </property>
+  </action>
+  <action name="action60">
+   <property name="text">
+    <string>60</string>
+   </property>
+  </action>
+  <action name="action40">
+   <property name="text">
+    <string>40</string>
+   </property>
+  </action>
+  <action name="action20">
+   <property name="text">
+    <string>20</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>pushButton_start_vs</tabstop>

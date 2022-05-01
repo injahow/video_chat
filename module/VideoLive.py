@@ -3,7 +3,7 @@
 from module.UDPSocket import Client, Server
 from module.Video import VideoSender
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QBuffer, QByteArray, QIODevice
 
 
 class LiveServer(Server, VideoSender):  # 直播发送方
@@ -12,6 +12,17 @@ class LiveServer(Server, VideoSender):  # 直播发送方
         Server.__init__(self, broadcast_ip)
         self.set_handler(key)
         VideoSender.__init__(self, video_type)
+        self.quality = 20
+
+    def set_quality(self, quality):
+        self.quality = quality
+
+    def qImg2bytes(self, qImg):
+        byte_array = QByteArray()
+        qImg_buffer = QBuffer(byte_array)
+        qImg_buffer.open(QIODevice.WriteOnly)
+        qImg.save(qImg_buffer, 'jpg', self.quality)
+        return byte_array.data()
 
     def sendall(self, data: bytes):
         self.sendto(data)

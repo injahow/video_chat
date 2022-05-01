@@ -35,6 +35,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         self.live_server = None
         self.live_client = None
+        self.live_quality = 22
 
         self.to_ip = '127.0.0.1'
         self.broadcast_ip = '192.168.31.255'
@@ -70,6 +71,18 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         if not is_first:
             self.setupUi(self)
+
+        def quality_action(quality):
+            def action_fun():
+                if self.live_server:
+                    self.live_server.quality = quality
+                self.live_quality = quality
+            return action_fun
+
+        self.action20.triggered.connect(quality_action(22))
+        self.action40.triggered.connect(quality_action(40))
+        self.action60.triggered.connect(quality_action(60))
+        self.action80.triggered.connect(quality_action(80))
 
         self.pushButton_connect.clicked.connect(self.run_connect_btn)  # 开启连接
         self.pushButton_close.clicked.connect(self.close_all_threads)  # 关闭连接
@@ -256,6 +269,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             broadcast_ip = self.lineEdit_broadcast.text()
             key = str(self.lineEdit_broadcast_sec.text())
             self.live_server = LiveServer(broadcast_ip, key, self.video_type)
+            self.live_server.set_quality(self.live_quality)
             self.live_server.open_server()
             self.live_server._video_local.connect(self.show_video_src)
             self.live_server.start()
