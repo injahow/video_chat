@@ -53,7 +53,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self._setupUi(True)
 
     def _setupUi(self, is_first=False):
-        # 处理文本框
+        # 处理UI文字
         if is_first:
             self.setupUi(self)
 
@@ -61,6 +61,12 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         broadcast_ip = self.lineEdit_broadcast.text()
         browser_text = self.textBrowser_text.toHtml()
         text = self.lineEdit_text.text()
+
+        pushButton_connect_text = self.pushButton_connect.text()
+        pushButton_start_vs_text = self.pushButton_start_vs.text()
+        pushButton_start_as_text = self.pushButton_start_as.text()
+        pushButton_send_broadcast_text = self.pushButton_send_broadcast.text()
+        pushButton_get_broadcast_text = self.pushButton_get_broadcast.text()
 
         if not is_first:
             self.setupUi(self)
@@ -91,11 +97,17 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         self.lineEdit_text.returnPressed.connect(self.send_text)  # 发送消息
 
-        # 处理文本框
+        # 处理UI文字
         self.lineEdit_ip.setText(to_ip)
         self.lineEdit_broadcast.setText(broadcast_ip)
         self.textBrowser_text.append(browser_text)
         self.lineEdit_text.setText(text)
+
+        self.pushButton_connect.setText(pushButton_connect_text)
+        self.pushButton_start_vs.setText(pushButton_start_vs_text)
+        self.pushButton_start_as.setText(pushButton_start_as_text)
+        self.pushButton_send_broadcast.setText(pushButton_send_broadcast_text)
+        self.pushButton_get_broadcast.setText(pushButton_get_broadcast_text)
 
     def create_rightmenu(self):
         # 菜单对象

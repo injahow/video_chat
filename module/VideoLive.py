@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
-from PyQt5.QtCore import QThread, pyqtSignal
-
 from module.UDPSocket import Client, Server
 from module.Video import VideoSender
+
+from PyQt5.QtCore import QThread, pyqtSignal
 
 
 class LiveServer(Server, VideoSender):  # 直播发送方

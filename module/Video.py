@@ -10,17 +10,6 @@ from PyQt5.QtGui import QImage
 from module.Message import MessageClient
 
 
-def qImg2bytes(qImg):
-    # 获取一个空的字节数组
-    byte_array = QByteArray()
-    # 将字节数组绑定到输出流上
-    qImg_buffer = QBuffer(byte_array)
-    qImg_buffer.open(QIODevice.WriteOnly)
-    # 将数据使用jpg格式进行保存
-    qImg.save(qImg_buffer, 'jpg', quality=35)  # 1-100
-    return byte_array.data()
-
-
 class VideoSender(QThread):
 
     _video_local = pyqtSignal(QImage)
@@ -32,6 +21,20 @@ class VideoSender(QThread):
         self.video_type = video_type
         self.cap = None
         self.closed = True
+
+    def qImg2bytes(self, qImg):
+        # 获取空字节数组
+        byte_array = QByteArray()
+        # 字节数组绑定输出流
+        qImg_buffer = QBuffer(byte_array)
+        qImg_buffer.open(QIODevice.WriteOnly)
+        if self.video_type == 'desktop':
+            quality = 22
+        else:
+            quality = 50
+        # 使用jpg格式保存数据
+        qImg.save(qImg_buffer, 'jpg', quality)  # 1-100
+        return byte_array.data()
 
     def set_sender(self, msg_client: MessageClient):
         self.msg_client = msg_client
@@ -74,7 +77,6 @@ class VideoSender(QThread):
                 ret, frame = self.cap.read()
                 if not ret:
                     break
-                # frame = cv2.resize(frame, (1280, 720))
                 height, width = frame.shape[:2]
                 bytesPerLine = 3 * width
                 q_img = QImage(frame.data, width, height, bytesPerLine,
@@ -82,12 +84,17 @@ class VideoSender(QThread):
 
             elif self.video_type == 'desktop':
                 q_img = self.screen.grabWindow(self.desktop_win_id).toImage()
+                new_width, new_height = q_img.width()//1.5, q_img.height()//1.5
+                q_img = q_img.scaled(new_width, new_height, transformMode=1)
 
             # 本地回调桌面图片QPixmap缩小 -> QImage格式
             self._video_local.emit(q_img)
 
             # 2.发送 video
-            send_data = qImg2bytes(q_img)
+            send_data = self.qImg2bytes(q_img)
             self.sendall(send_data)
-            self.msleep(150)
+            if self.video_type == 'desktop':
+                self.msleep(100)
+            else:
+                self.msleep(50)
         pass
