@@ -29,7 +29,7 @@ class VideoSender(QThread):
         qImg_buffer = QBuffer(byte_array)
         qImg_buffer.open(QIODevice.WriteOnly)
         if self.video_type == 'desktop':
-            quality = 22
+            quality = 65
         else:
             quality = 50
         # 使用jpg格式保存数据
