@@ -108,14 +108,15 @@ class SSLTools:
 
 class DataHandler:
 
-    def __init__(self) -> None:
-        pass
-        # video audio file text
-        # self.AES = AESHandler(md5byte16(key))
+    def __init__(self, key='') -> None:
+        self.AES = None
+        if key:
+            self.AES = AESHandler(md5byte16(key))
 
     def decode(self, receive_data: bytes) -> bytes:
         try:
-            # receive_data = self.AES.decrypt(receive_data)
+            if self.AES:
+                receive_data = self.AES.decrypt(receive_data)
             receive_data = zlib.decompress(receive_data)
         except Exception as err:
             print('DataHandler decode error:', err)
@@ -125,7 +126,8 @@ class DataHandler:
     def encode(self, send_data: bytes) -> bytes:
         try:
             send_data = zlib.compress(send_data)
-            # send_data = self.AES.encrypt(send_data)
+            if self.AES:
+                send_data = self.AES.encrypt(send_data)
         except Exception as err:
             print('DataHandler encode error:', err)
             send_data = b''

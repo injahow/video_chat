@@ -85,30 +85,12 @@
     <property name="title">
      <string>功能</string>
     </property>
-    <widget class="QPushButton" name="pushButton_end">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>140</y>
-       <width>91</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>结束程序</string>
-     </property>
-    </widget>
     <widget class="QLineEdit" name="lineEdit_ip">
      <property name="geometry">
       <rect>
        <x>70</x>
        <y>20</y>
-       <width>151</width>
+       <width>141</width>
        <height>31</height>
       </rect>
      </property>
@@ -126,7 +108,7 @@
       <rect>
        <x>70</x>
        <y>60</y>
-       <width>151</width>
+       <width>141</width>
        <height>31</height>
       </rect>
      </property>
@@ -137,6 +119,9 @@
      </property>
      <property name="text">
       <string>192.168.31.255</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QLabel" name="label">
@@ -178,9 +163,9 @@
     <widget class="QPushButton" name="pushButton_start_vs">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>220</x>
        <y>60</y>
-       <width>61</width>
+       <width>51</width>
        <height>31</height>
       </rect>
      </property>
@@ -214,9 +199,9 @@
     <widget class="QPushButton" name="pushButton_get_ip">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>140</y>
-       <width>91</width>
+       <x>310</x>
+       <y>100</y>
+       <width>81</width>
        <height>31</height>
       </rect>
      </property>
@@ -229,46 +214,10 @@
       <string>广播设置</string>
      </property>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>100</y>
-       <width>211</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QRadioButton" name="radioButton_desktop">
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>桌面</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioButton_camera">
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>摄像头</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
     <widget class="QPushButton" name="pushButton_start_as">
      <property name="geometry">
       <rect>
-       <x>290</x>
+       <x>280</x>
        <y>60</y>
        <width>51</width>
        <height>31</height>
@@ -281,24 +230,6 @@
      </property>
      <property name="text">
       <string>音频</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_set_video_type">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>100</y>
-       <width>161</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>设置视频类型</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_start_fs">
@@ -319,10 +250,10 @@
       <string>文件</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_start_scan">
+    <widget class="QPushButton" name="pushButton_end">
      <property name="geometry">
       <rect>
-       <x>200</x>
+       <x>310</x>
        <y>140</y>
        <width>81</width>
        <height>31</height>
@@ -334,15 +265,15 @@
       </font>
      </property>
      <property name="text">
-      <string>扫描用户</string>
+      <string>退出程序</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_start">
+    <widget class="QPushButton" name="pushButton_send_broadcast">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>10</x>
        <y>140</y>
-       <width>81</width>
+       <width>101</width>
        <height>31</height>
       </rect>
      </property>
@@ -358,7 +289,7 @@
     <widget class="QPushButton" name="pushButton_connect">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>220</x>
        <y>20</y>
        <width>81</width>
        <height>31</height>
@@ -376,9 +307,9 @@
     <widget class="QLineEdit" name="lineEdit_text">
      <property name="geometry">
       <rect>
-       <x>400</x>
+       <x>410</x>
        <y>140</y>
-       <width>311</width>
+       <width>301</width>
        <height>31</height>
       </rect>
      </property>
@@ -397,9 +328,9 @@
     <widget class="QTextBrowser" name="textBrowser_text">
      <property name="geometry">
       <rect>
-       <x>400</x>
+       <x>410</x>
        <y>20</y>
-       <width>311</width>
+       <width>301</width>
        <height>111</height>
       </rect>
      </property>
@@ -414,6 +345,96 @@
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_broadcast_sec">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>100</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>广播密钥:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_set_video_type">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>100</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>视频设置</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_clean_text">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>140</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>清除聊天</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_get_broadcast">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>140</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>接收广播</string>
      </property>
     </widget>
    </widget>
@@ -459,10 +480,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>lineEdit_broadcast</tabstop>
   <tabstop>lineEdit_ip</tabstop>
   <tabstop>pushButton_end</tabstop>
-  <tabstop>radioButton_desktop</tabstop>
-  <tabstop>pushButton_start_scan</tabstop>
   <tabstop>pushButton_close</tabstop>
-  <tabstop>pushButton_start</tabstop>
+  <tabstop>pushButton_send_broadcast</tabstop>
  </tabstops>
  <resources/>
  <connections/>

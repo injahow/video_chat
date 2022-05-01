@@ -13,7 +13,7 @@ from module.utils import DataHandler, SSLTools
 dataHandler = DataHandler()
 
 
-class Server:  # data 接收者
+class Server:  # data 接收者 - 只接收
     def __init__(self) -> None:
         self.address = ('', 9876)
         self.sock = None
@@ -34,11 +34,7 @@ class Server:  # data 接收者
         self.ctx = ctx
 
     @abstractmethod
-    def emit(self, conn, addr, msg: dict):
-        pass
-
-    @abstractmethod
-    def connect_remind(self, addr: tuple):
+    def emit(self, conn, addr: tuple, msg: dict):
         pass
 
     @abstractmethod
@@ -46,7 +42,7 @@ class Server:  # data 接收者
         pass
 
     def accept_connect(self, addr):
-        print('Accept connection from %s:%s !' % addr)
+        self._print('Accept connection from %s:%s !' % addr)
         conn = self.conn_map[addr]
         link = threading.Thread(
             target=self.connect_thread, args=(conn, addr))
@@ -58,14 +54,6 @@ class Server:  # data 接收者
         if conn:
             self.conn_map.pop(addr)
             conn.close()
-
-    def sendall(self, frames):
-        senddata = pickle.dumps(frames)
-        senddata = dataHandler.encode(senddata)
-        try:
-            self.ssock.sendall(struct.pack('L', len(senddata)) + senddata)
-        except:
-            self._print('发送失败')
 
     def connect_thread(self, conn: ssl.SSLSocket, addr: tuple):
         """
@@ -107,7 +95,8 @@ class Server:  # data 接收者
         # tcp sock
         sock = self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(self.address)
-        sock.listen(255)
+        sock.listen(3)
+        print('MessageServer bind complete !')
         # 将socket 打包成 SSL socket
         ctx = self.ctx
         ssock = self.ssock = ctx.wrap_socket(sock, server_side=True)
@@ -116,10 +105,13 @@ class Server:  # data 接收者
             # 接受新的连接
             conn, addr = ssock.accept()
             self.conn_map[addr] = conn
-            self.connect_remind(addr)
+            self.emit(conn, addr, {
+                'type': 'message',
+                'data': 'connect'
+            })
 
 
-class Client:  # data 发送者
+class Client:  # data 发送者 - 只发送
     def __init__(self) -> None:
         self.sock = None
         self.ssock = None
@@ -127,6 +119,7 @@ class Client:  # data 发送者
         self.ctx = ssl._create_unverified_context()
         self.is_connected = False
         self.wait_ip = ''
+        self.closed = False
 
     @abstractmethod
     def _print(self, text: str):
@@ -143,22 +136,24 @@ class Client:  # data 发送者
             self.ssock = self.ctx.wrap_socket(
                 self.sock, server_hostname='127.0.0.1')
             self.is_connected = True
+            self.closed = False
             self._print('connectioning, wait for confirmation ...')
             self.wait_ip = tar_ip
         except:
             self._print('create connection failed ?')
-            self.is_connected = False
+            self.close_connect()
 
     def close_connect(self):
         if self.ssock:
             self.ssock.close()
         if self.sock:
             self.sock.close()
-        self.is_connected = False
         self.wait_ip = ''
+        self.is_connected = False
+        self.closed = True
 
-    def sendall(self, frames):
-        senddata = pickle.dumps(frames)
+    def sendall(self, obj):
+        senddata = pickle.dumps(obj)
         senddata = dataHandler.encode(senddata)
         try:
             self.ssock.sendall(struct.pack('L', len(senddata)) + senddata)

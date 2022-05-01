@@ -17,7 +17,7 @@ def qImg2bytes(qImg):
     qImg_buffer = QBuffer(byte_array)
     qImg_buffer.open(QIODevice.WriteOnly)
     # 将数据使用jpg格式进行保存
-    qImg.save(qImg_buffer, 'jpg', quality=50)  # 1-100
+    qImg.save(qImg_buffer, 'jpg', quality=35)  # 1-100
     return byte_array.data()
 
 
@@ -89,5 +89,5 @@ class VideoSender(QThread):
             # 2.发送 video
             send_data = qImg2bytes(q_img)
             self.sendall(send_data)
-            self.msleep(40)
+            self.msleep(150)
         pass
