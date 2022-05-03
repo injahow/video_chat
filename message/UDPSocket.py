@@ -4,7 +4,7 @@ from abc import abstractmethod
 import socket
 import sys
 
-from module.utils import DataHandler
+from message.utils import DataHandler
 
 BUFFER_SIZE = 61440
 

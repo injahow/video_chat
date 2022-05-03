@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from module.Message import MessageClient
+from message.Message import MessageClient
 
 
 class FileSender(QThread):  # 文件发送者

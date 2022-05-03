@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\1813010038\毕业设计\video_chat_dev\ui\main.ui'
+# Form implementation generated from reading ui file 'd:\1813010038\毕业设计\video_chat\ui\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,9 +14,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1020, 800)
-        MainWindow.setMinimumSize(QtCore.QSize(1020, 800))
-        MainWindow.setMaximumSize(QtCore.QSize(1020, 800))
+        MainWindow.resize(1020, 820)
+        MainWindow.setMinimumSize(QtCore.QSize(1020, 820))
+        MainWindow.setMaximumSize(QtCore.QSize(1020, 820))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label_video_2 = QtWidgets.QLabel(self.centralwidget)

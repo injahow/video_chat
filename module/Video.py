@@ -7,7 +7,7 @@ from PyQt5.QtCore import QBuffer, QByteArray, QIODevice, QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QImage
 
-from module.Message import MessageClient
+from message.Message import MessageClient
 
 
 class VideoSender(QThread):

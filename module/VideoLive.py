@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from module.UDPSocket import Client, Server
+from message.UDPSocket import Client, Server
 from module.Video import VideoSender
 
 from PyQt5.QtCore import QThread, pyqtSignal, QBuffer, QByteArray, QIODevice

@@ -3,7 +3,7 @@
 from pyaudio import paInt16, PyAudio
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from module.Message import MessageClient
+from message.Message import MessageClient
 
 
 CHUNK = 1024

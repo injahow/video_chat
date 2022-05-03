@@ -5,7 +5,7 @@ import sys
 
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 
-from module.TCPSocket import Server, Client
+from message.TCPSocket import Server, Client
 
 
 class MessageServer(Server, QThread):  # 信息接收者
