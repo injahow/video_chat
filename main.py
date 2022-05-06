@@ -167,8 +167,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def run_connect_btn(self):
         text = self.pushButton_connect.text()
         if text == '连接':
-            if self.msg_client:
-                return
             self.run_msg_client()
             self.pushButton_connect.setText('关闭')
         else:
@@ -227,6 +225,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             self.close_file_sender()
 
     def run_msg_client(self):
+        if self.msg_client:
+            return
         self.to_ip = self.lineEdit_ip.text()
         self.msg_client = MessageClient(self.to_ip)
         self.msg_client._log.connect(self.show_log)

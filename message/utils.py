@@ -5,30 +5,6 @@ import hashlib
 from Crypto.Cipher import AES
 
 
-class AESHandler:
-    def __init__(self, key: bytes):
-        self.key = key
-        self.mode = AES.MODE_ECB  # 操作模式选择ECB
-
-    def encrypt(self, text: bytes) -> bytes:
-        """AES加密"""
-        aes = AES.new(self.key, self.mode)
-        while len(text) % 16 != 0:  # 对字节型数据进行长度判断
-            text += b'\x00'  # 如果字节型数据长度不是16倍整数就进行补充
-        return aes.encrypt(text)
-
-    def decrypt(self, text: bytes) -> bytes:
-        """AES解密"""
-        aes = AES.new(self.key, self.mode)
-        return aes.decrypt(text)  # 密文进行解密，返回明文的bytes
-
-
-def md5byte16(s):
-    md5 = hashlib.md5()
-    md5.update(s.encode('utf-8'))
-    return md5.digest()  # hexdigest
-
-
 class SSLTools:
     def generate_adhoc_ssl_pair(cn=None):
         from datetime import datetime as dt
@@ -104,6 +80,30 @@ class SSLTools:
         # 保存私钥
         with open(p_key_path, mode='wb') as p_key_file:
             p_key_file.write(private_bytes)
+
+
+class AESHandler:
+    def __init__(self, key: bytes):
+        self.key = key
+        self.mode = AES.MODE_ECB  # 操作模式选择ECB
+
+    def encrypt(self, text: bytes) -> bytes:
+        """AES加密"""
+        aes = AES.new(self.key, self.mode)
+        while len(text) % 16 != 0:  # 对字节型数据进行长度判断
+            text += b'\x00'  # 如果字节型数据长度不是16倍整数就进行补充
+        return aes.encrypt(text)
+
+    def decrypt(self, text: bytes) -> bytes:
+        """AES解密"""
+        aes = AES.new(self.key, self.mode)
+        return aes.decrypt(text)  # 密文进行解密，返回明文的bytes
+
+
+def md5byte16(s: str) -> bytes:
+    md5 = hashlib.md5()
+    md5.update(s.encode('utf-8'))
+    return md5.digest()  # hexdigest
 
 
 class DataHandler:
