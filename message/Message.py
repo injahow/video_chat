@@ -33,8 +33,6 @@ class MessageServer(Server, QThread):  # 信息接收者
         """
         data_type = msg['type']
         data = msg['data']
-        # , data = msg.split(b':::', 1)
-        # data_type = data_type.decode()
 
         if data_type == 'message':
             self._msg.emit({
@@ -54,7 +52,7 @@ class MessageServer(Server, QThread):  # 信息接收者
 
     def _print(self, text: str):
         self._log.emit(text)
-        # return super()._print(text)
+        return super()._print(text)
 
     def run(self):
         try:

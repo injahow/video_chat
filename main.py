@@ -24,31 +24,27 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         self.video_type = 'camera'  # camera or desktop
         self.is_full_video = False
-
-        self.video_sender = None
-
-        self.audio_sender = None
-        self.audio_player = None
-
-        self.file_sender = None
-        self.file_downloader = None
-
-        self.live_server = None
-        self.live_client = None
-        self.live_quality = 22
-
         self.to_ip = '127.0.0.1'
         self.broadcast_ip = '192.168.31.255'
+        self.video_quality = 60
+        self.video_percent = 2/3
+
+        self.video_sender = None
+        self.audio_sender = None
+        self.audio_player = None
+        self.file_sender = None
+        self.file_downloader = None
+        self.live_server = None
+        self.live_client = None
 
         self.msg_server = MessageServer()
         self.msg_server._msg.connect(self.show_msg)
         self.msg_server._video.connect(self.show_video)
-        self.msg_server._audio.connect(self.play_audio)
-        self.msg_server._file.connect(self.download_file)
+        self.msg_server._audio.connect(self.show_audio)
+        self.msg_server._file.connect(self.show_file)
         self.msg_server._text.connect(self.show_text)
         self.msg_server._log.connect(self.show_log)
         self.msg_server.start()
-
         self.msg_client = None
 
         self._setupUi(True)
@@ -74,16 +70,32 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             self.setupUi(self)
 
         def quality_action(quality):
-            def action_fun():
+            def action():
+                self.video_quality = quality
                 if self.live_server:
-                    self.live_server.quality = quality
-                self.live_quality = quality
-            return action_fun
-
+                    self.live_server.set_quality(quality)
+                if self.video_sender:
+                    self.video_sender.set_quality(quality)
+            return action
         self.action20.triggered.connect(quality_action(22))
         self.action40.triggered.connect(quality_action(40))
         self.action60.triggered.connect(quality_action(60))
         self.action80.triggered.connect(quality_action(80))
+        self.action100.triggered.connect(quality_action(98))
+
+        def percent_action(percent):
+            def action():
+                self.video_percent = percent
+                if self.live_server:
+                    self.live_server.set_percent(percent)
+                if self.video_sender:
+                    self.video_sender.set_percent(percent)
+            return action
+        self.action_per1.triggered.connect(percent_action(1))
+        self.action_per2.triggered.connect(percent_action(9/10))
+        self.action_per3.triggered.connect(percent_action(4/5))
+        self.action_per4.triggered.connect(percent_action(7/10))
+        self.action_per5.triggered.connect(percent_action(3/5))
 
         self.pushButton_connect.clicked.connect(self.run_connect_btn)  # 开启连接
         self.pushButton_close.clicked.connect(self.close_all_threads)  # 关闭连接
@@ -94,9 +106,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         self.pushButton_set_video_type.clicked.connect(
             self.set_video_type)  # 视频设置
-
         self.pushButton_get_ip.clicked.connect(self.get_ips)  # 广播设置
-
         self.pushButton_send_broadcast.clicked.connect(
             self.run_live_server_btn)  # 视频广播
         self.pushButton_get_broadcast.clicked.connect(
@@ -105,9 +115,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_clean_text.clicked.connect(self.clean_text_btn)  # 清除聊天
         self.pushButton_end.clicked.connect(self.close)  # 退出程序
 
-        self.lineEdit_text.returnPressed.connect(self.send_text)  # 发送消息
+        self.lineEdit_text.returnPressed.connect(self.send_text)  # 文本框-发送消息
 
-        self.label_video.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.label_video.setContextMenuPolicy(Qt.CustomContextMenu)  # 视频框-右键菜单
         self.label_video.customContextMenuRequested.connect(
             self.create_rightmenu)
 
@@ -263,7 +273,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             broadcast_ip = self.lineEdit_broadcast.text()
             key = str(self.lineEdit_broadcast_sec.text())
             self.live_server = LiveServer(broadcast_ip, key, self.video_type)
-            self.live_server.set_quality(self.live_quality)
             self.live_server.open_server()
             self.live_server._video_local.connect(self.show_video_src)
             self.live_server.start()
@@ -445,7 +454,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.label_video.setPixmap(pixmap)
         self.label_video.repaint()
 
-    def play_audio(self, data: bytes):  # 显示视频接收源
+    def show_audio(self, data: bytes):  # 显示视频接收源
         # data 格式 'tag':'audio':['open'|'close'] or audio_buffer
         if not self.client_connected():
             return
@@ -459,7 +468,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 return
             self.audio_player.buffer_list.append(data)
 
-    def download_file(self, data: bytes):  # 下载接收的文件
+    def show_file(self, data: bytes):  # 下载接收的文件
         if not self.client_connected():
             return
         # data 格式 'tag':[filename]:['open'|'close'] or file_buffer

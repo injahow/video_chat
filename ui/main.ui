@@ -475,14 +475,26 @@ p, li { white-space: pre-wrap; }
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>广播质量</string>
+     <string>视频质量</string>
     </property>
+    <addaction name="action100"/>
     <addaction name="action80"/>
     <addaction name="action60"/>
     <addaction name="action40"/>
     <addaction name="action20"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>视频尺寸</string>
+    </property>
+    <addaction name="action_per1"/>
+    <addaction name="action_per2"/>
+    <addaction name="action_per3"/>
+    <addaction name="action_per4"/>
+    <addaction name="action_per5"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action80">
@@ -503,6 +515,41 @@ p, li { white-space: pre-wrap; }
   <action name="action20">
    <property name="text">
     <string>20</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>广播质量</string>
+   </property>
+  </action>
+  <action name="action100">
+   <property name="text">
+    <string>100</string>
+   </property>
+  </action>
+  <action name="action_per1">
+   <property name="text">
+    <string>100%</string>
+   </property>
+  </action>
+  <action name="action_per2">
+   <property name="text">
+    <string>90%</string>
+   </property>
+  </action>
+  <action name="action_per3">
+   <property name="text">
+    <string>80%</string>
+   </property>
+  </action>
+  <action name="action_per4">
+   <property name="text">
+    <string>70%</string>
+   </property>
+  </action>
+  <action name="action_per5">
+   <property name="text">
+    <string>60%</string>
    </property>
   </action>
  </widget>

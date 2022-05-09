@@ -17,23 +17,28 @@ class VideoSender(QThread):
     def __init__(self, video_type='camera'):
         super().__init__()
         self.msg_client = None
-
         self.video_type = video_type
         self.cap = None
         self.closed = True
+        self.quality = 50
+        self.percent = 1.0
 
-    def qImg2bytes(self, qImg):
+    def set_quality(self, quality: int):
+        if quality > 0 and quality <= 100:
+            self.quality = quality
+
+    def set_percent(self, percent: float):
+        if percent > 0 and percent <= 1:
+            self.percent = percent
+
+    def qImg2bytes(self, qImg: QImage):
         # 获取空字节数组
         byte_array = QByteArray()
         # 字节数组绑定输出流
         qImg_buffer = QBuffer(byte_array)
         qImg_buffer.open(QIODevice.WriteOnly)
-        if self.video_type == 'desktop':
-            quality = 65
-        else:
-            quality = 50
         # 使用jpg格式保存数据
-        qImg.save(qImg_buffer, 'jpg', quality)  # 1-100
+        qImg.save(qImg_buffer, 'jpg', self.quality)  # 1-100
         return byte_array.data()
 
     def set_sender(self, msg_client: MessageClient):
@@ -78,20 +83,23 @@ class VideoSender(QThread):
                 if not ret:
                     break
                 height, width = frame.shape[:2]
+
                 bytesPerLine = 3 * width
                 q_img = QImage(frame.data, width, height, bytesPerLine,
                                QImage.Format_RGB888).rgbSwapped()
-
             elif self.video_type == 'desktop':
                 q_img = self.screen.grabWindow(self.desktop_win_id).toImage()
-                new_width, new_height = q_img.width()//1.5, q_img.height()//1.5
-                q_img = q_img.scaled(new_width, new_height, transformMode=1)
 
-            # 本地回调桌面图片QPixmap缩小 -> QImage格式
+            # 缩放
+            new_width = int(q_img.width()*self.percent)
+            new_height = int(q_img.height()*self.percent)
+            new_q_img = q_img.scaled(new_width, new_height, transformMode=1)
+
+            # 本地回调
             self._video_local.emit(q_img)
 
-            # 2.发送 video
-            send_data = self.qImg2bytes(q_img)
+            # 2.发送-质量压缩
+            send_data = self.qImg2bytes(new_q_img)
             self.sendall(send_data)
             if self.video_type == 'desktop':
                 self.msleep(100)
