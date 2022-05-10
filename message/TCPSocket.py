@@ -24,8 +24,8 @@ class Server:  # data 接收者 - 只接收
         ctx.load_default_certs(ssl.Purpose.CLIENT_AUTH)
 
         # 加载SSL文件
-        if not (os.path.exists('ssl.cer') and os.path.exists('private_key.key')):
-            SSLTools.makefile('ssl.cer', 'private_key.key')
+        if not (os.path.exists('./ssl.cer') and os.path.exists('./private_key.key')):
+            SSLTools.makefile('./ssl.cer', './private_key.key')
 
         ctx.load_cert_chain(
             certfile='ssl.cer',

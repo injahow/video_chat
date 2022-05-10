@@ -9,15 +9,13 @@ class SSLTools:
     def generate_adhoc_ssl_pair(cn=None):
         from datetime import datetime as dt
         from datetime import timedelta
-        try:
-            from cryptography import x509
-            from cryptography.x509.oid import NameOID
-            from cryptography.hazmat.backends import default_backend
-            from cryptography.hazmat.primitives import hashes
-            from cryptography.hazmat.primitives.asymmetric import rsa
-        except ImportError:
-            raise TypeError(
-                'Using ad-hoc certificates requires the cryptography library.')
+
+        from cryptography import x509
+        from cryptography.x509.oid import NameOID
+        from cryptography.hazmat.backends import default_backend
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
         p_key = rsa.generate_private_key(
             public_exponent=65537, key_size=2048, backend=default_backend()
         )
@@ -31,7 +29,7 @@ class SSLTools:
             [
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'myself'),
                 x509.NameAttribute(NameOID.COMMON_NAME, '127.0.0.1'),
-                x509.NameAttribute(NameOID.COUNTRY_NAME, 'cn'),
+                x509.NameAttribute(NameOID.COUNTRY_NAME, 'cn')
             ]
         )
 
@@ -40,7 +38,7 @@ class SSLTools:
             [
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'myself'),
                 x509.NameAttribute(NameOID.COMMON_NAME, '127.0.0.1'),
-                x509.NameAttribute(NameOID.COUNTRY_NAME, 'cn'),
+                x509.NameAttribute(NameOID.COUNTRY_NAME, 'cn')
             ]
         )
 
@@ -59,7 +57,7 @@ class SSLTools:
 
         return cert, p_key
 
-    def makefile(cer_path='ssl.cer', p_key_path='private_key.key'):
+    def makefile(cer_path='./ssl.cer', p_key_path='./private_key.key'):
 
         from cryptography.hazmat.primitives import serialization
         cert, p_key = SSLTools.generate_adhoc_ssl_pair()

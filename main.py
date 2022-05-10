@@ -152,14 +152,15 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.textBrowser_text.clear()
 
     def close_all_threads(self):
-        fun_list: list[function] = [
-            self.close_msg_client,
-            self.close_video_sender,
-            self.close_audio_sender,
-            self.close_file_sender
-        ]
-        for fun in fun_list:
-            fun()
+        self.close_video_sender()
+        self.close_audio_sender()
+        self.close_audio_player()
+        self.close_file_sender()
+        self.close_file_downloader()
+        self.close_live_server()
+        self.close_live_client()
+        self.close_msg_client()
+        # ...
         self.label_video.clear()
         self.label_video.repaint()
 
@@ -250,14 +251,15 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_connect.setText('连接')
 
     def run_video_sender(self):
-        if not self.video_sender:
+        if self.video_sender:
+            return
             # 创建视频发送线程
-            self.video_sender = VideoSender(self.video_type)
-            self.video_sender.open_server()
-            self.video_sender.set_sender(self.msg_client)
-            # 连接信号，绑定回调事件
-            self.video_sender._video_local.connect(self.show_video_src)
-            self.video_sender.start()
+        self.video_sender = VideoSender(self.video_type)
+        self.video_sender.open_server()
+        self.video_sender.set_sender(self.msg_client)
+        # 连接信号，绑定回调事件
+        self.video_sender._video_local.connect(self.show_video_src)
+        self.video_sender.start()
 
     def close_video_sender(self):
         if self.video_sender:
@@ -268,14 +270,17 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.label_video_2.repaint()
 
     def run_live_server(self):
-        if not self.live_server:
-            # 创建视频广播线程
-            broadcast_ip = self.lineEdit_broadcast.text()
-            key = str(self.lineEdit_broadcast_sec.text())
-            self.live_server = LiveServer(broadcast_ip, key, self.video_type)
-            self.live_server.open_server()
-            self.live_server._video_local.connect(self.show_video_src)
-            self.live_server.start()
+        if self.live_server:
+            return
+        # 创建视频广播线程
+        broadcast_ip = self.lineEdit_broadcast.text()
+        key = str(self.lineEdit_broadcast_sec.text())
+        self.live_server = LiveServer(broadcast_ip, key, self.video_type)
+        self.live_server.set_quality(self.video_quality)
+        self.live_server.set_percent(self.video_percent)
+        self.live_server.open_server()
+        self.live_server._video_local.connect(self.show_video_src)
+        self.live_server.start()
 
     def close_live_server(self):
         if self.live_server:
@@ -284,13 +289,14 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_send_broadcast.setText('视频广播')
 
     def run_live_client(self):
-        if not self.live_client:
-            # 创建广播接收线程
-            key = str(self.lineEdit_broadcast_sec.text())
-            self.live_client = LiveClient(key)
-            self.live_client._video.connect(self.show_video)
-            self.live_client._log.connect(self.show_log)
-            self.live_client.start()
+        if self.live_client:
+            return
+        # 创建广播接收线程
+        key = str(self.lineEdit_broadcast_sec.text())
+        self.live_client = LiveClient(key)
+        self.live_client._video.connect(self.show_video)
+        self.live_client._log.connect(self.show_log)
+        self.live_client.start()
 
     def close_live_client(self):
         if self.live_client:
@@ -299,11 +305,12 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_get_broadcast.setText('接收广播')
 
     def run_audio_sender(self):
-        if not self.audio_sender:
-            self.audio_sender = AudioSender()
-            self.audio_sender.set_sender(self.msg_client)
-            self.audio_sender.open_server()
-            self.audio_sender.start()
+        if self.audio_sender:
+            return
+        self.audio_sender = AudioSender()
+        self.audio_sender.set_sender(self.msg_client)
+        self.audio_sender.open_server()
+        self.audio_sender.start()
 
     def close_audio_sender(self):
         if self.audio_sender:
