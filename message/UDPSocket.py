@@ -10,7 +10,7 @@ from message.utils import DataHandler
 BUFFER_SIZE = 61440
 
 
-class Server:  # data 发送方
+class Client:  # data 发送方
     def __init__(self, broadcast_ip) -> None:
         self.broadcast_ip = broadcast_ip
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -45,7 +45,7 @@ class Server:  # data 发送方
             self.__sendto(b'0:'+data+b'end')
 
 
-class Client:  # data 接收方
+class Server:  # data 接收方
     def __init__(self) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.closed = False

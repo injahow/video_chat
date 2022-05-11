@@ -13,7 +13,7 @@ from message.Message import MessageServer, MessageClient
 from module.Video import VideoSender
 from module.Audio import AudioSender, AudioPlayer
 from module.File import FileSender, FileDownloader
-from module.VideoLive import LiveClient, LiveServer
+from module.VideoLive import LiveServer, LiveClient
 
 
 class MyMainForm(QMainWindow, Ui_MainWindow):
@@ -34,8 +34,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.audio_player = None
         self.file_sender = None
         self.file_downloader = None
-        self.live_server = None
         self.live_client = None
+        self.live_server = None
 
         self.msg_server = MessageServer()
         self.msg_server._msg.connect(self.show_msg)
@@ -72,8 +72,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         def quality_action(quality):
             def action():
                 self.video_quality = quality
-                if self.live_server:
-                    self.live_server.set_quality(quality)
+                if self.live_client:
+                    self.live_client.set_quality(quality)
                 if self.video_sender:
                     self.video_sender.set_quality(quality)
             return action
@@ -86,8 +86,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         def percent_action(percent):
             def action():
                 self.video_percent = percent
-                if self.live_server:
-                    self.live_server.set_percent(percent)
+                if self.live_client:
+                    self.live_client.set_percent(percent)
                 if self.video_sender:
                     self.video_sender.set_percent(percent)
             return action
@@ -97,20 +97,20 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.action_per4.triggered.connect(percent_action(7/10))
         self.action_per5.triggered.connect(percent_action(3/5))
 
-        self.pushButton_connect.clicked.connect(self.run_connect_btn)  # 开启连接
+        self.pushButton_connect.clicked.connect(self.con_connect_btn)  # 开启连接
         self.pushButton_close.clicked.connect(self.close_all_threads)  # 关闭连接
 
-        self.pushButton_start_vs.clicked.connect(self.run_video_btn)  # 视频
-        self.pushButton_start_as.clicked.connect(self.run_audio_btn)  # 音频
-        self.pushButton_start_fs.clicked.connect(self.run_file_btn)  # 文件
+        self.pushButton_start_vs.clicked.connect(self.con_video_btn)  # 视频
+        self.pushButton_start_as.clicked.connect(self.con_audio_btn)  # 音频
+        self.pushButton_start_fs.clicked.connect(self.con_file_btn)  # 文件
 
         self.pushButton_set_video_type.clicked.connect(
             self.set_video_type)  # 视频设置
         self.pushButton_get_ip.clicked.connect(self.get_ips)  # 广播设置
         self.pushButton_send_broadcast.clicked.connect(
-            self.run_live_server_btn)  # 视频广播
+            self.con_live_client_btn)  # 视频广播
         self.pushButton_get_broadcast.clicked.connect(
-            self.run_live_client_btn)  # 接收广播
+            self.con_live_server_btn)  # 接收广播
 
         self.pushButton_clean_text.clicked.connect(self.clean_text_btn)  # 清除聊天
         self.pushButton_end.clicked.connect(self.close)  # 退出程序
@@ -157,8 +157,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.close_audio_player()
         self.close_file_sender()
         self.close_file_downloader()
-        self.close_live_server()
         self.close_live_client()
+        self.close_live_server()
         self.close_msg_client()
         # ...
         self.label_video.clear()
@@ -175,7 +175,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             self._setupUi()
             self.is_full_video = False
 
-    def run_connect_btn(self):
+    def con_connect_btn(self):
         text = self.pushButton_connect.text()
         if text == '连接':
             self.run_msg_client()
@@ -186,23 +186,23 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             else:
                 self.pushButton_connect.setText('连接')
 
-    def run_live_server_btn(self):
+    def con_live_client_btn(self):
         text = self.pushButton_send_broadcast.text()
         if text == '视频广播':
-            self.run_live_server()
-            self.pushButton_send_broadcast.setText('关闭广播')
-        else:
-            self.close_live_server()
-
-    def run_live_client_btn(self):
-        text = self.pushButton_get_broadcast.text()
-        if text == '接收广播':
             self.run_live_client()
-            self.pushButton_get_broadcast.setText('关闭接收')
+            self.pushButton_send_broadcast.setText('关闭广播')
         else:
             self.close_live_client()
 
-    def run_video_btn(self):
+    def con_live_server_btn(self):
+        text = self.pushButton_get_broadcast.text()
+        if text == '接收广播':
+            self.run_live_server()
+            self.pushButton_get_broadcast.setText('关闭接收')
+        else:
+            self.close_live_server()
+
+    def con_video_btn(self):
         text = self.pushButton_start_vs.text()
         if text == '视频':
             if not self.video_sender:
@@ -214,7 +214,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         else:
             self.close_video_sender()
 
-    def run_audio_btn(self):
+    def con_audio_btn(self):
         text = self.pushButton_start_as.text()
         if text == '音频':
             if not self.audio_sender:
@@ -226,7 +226,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         else:
             self.close_audio_sender()
 
-    def run_file_btn(self):
+    def con_file_btn(self):
         if not self.file_sender:
             if not self.client_connected():
                 self.show_log('file sender: no connect')
@@ -269,39 +269,39 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.label_video_2.clear()
         self.label_video_2.repaint()
 
-    def run_live_server(self):
-        if self.live_server:
+    def run_live_client(self):
+        if self.live_client:
             return
         # 创建视频广播线程
         broadcast_ip = self.lineEdit_broadcast.text()
         key = str(self.lineEdit_broadcast_sec.text())
-        self.live_server = LiveServer(broadcast_ip, key, self.video_type)
-        self.live_server.set_quality(self.video_quality)
-        self.live_server.set_percent(self.video_percent)
-        self.live_server.open_server()
-        self.live_server._video_local.connect(self.show_video_src)
-        self.live_server.start()
-
-    def close_live_server(self):
-        if self.live_server:
-            self.live_server.quit()
-            self.live_server = None
-        self.pushButton_send_broadcast.setText('视频广播')
-
-    def run_live_client(self):
-        if self.live_client:
-            return
-        # 创建广播接收线程
-        key = str(self.lineEdit_broadcast_sec.text())
-        self.live_client = LiveClient(key)
-        self.live_client._video.connect(self.show_video)
-        self.live_client._log.connect(self.show_log)
+        self.live_client = LiveClient(broadcast_ip, key, self.video_type)
+        self.live_client.set_quality(self.video_quality)
+        self.live_client.set_percent(self.video_percent)
+        self.live_client.open_server()
+        self.live_client._video_local.connect(self.show_video_src)
         self.live_client.start()
 
     def close_live_client(self):
         if self.live_client:
             self.live_client.quit()
             self.live_client = None
+        self.pushButton_send_broadcast.setText('视频广播')
+
+    def run_live_server(self):
+        if self.live_server:
+            return
+        # 创建广播接收线程
+        key = str(self.lineEdit_broadcast_sec.text())
+        self.live_server = LiveServer(key)
+        self.live_server._video.connect(self.show_video)
+        self.live_server._log.connect(self.show_log)
+        self.live_server.start()
+
+    def close_live_server(self):
+        if self.live_server:
+            self.live_server.quit()
+            self.live_server = None
         self.pushButton_get_broadcast.setText('接收广播')
 
     def run_audio_sender(self):
@@ -425,7 +425,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 self.msg_server.accept_connect(addr)
                 # 同时发起对方连接的请求
                 self.lineEdit_ip.setText(addr[0])
-                self.run_connect_btn()
+                self.con_connect_btn()
             else:
                 # 拒绝连接
                 self.msg_server.close_connect(addr)
