@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from message.Message import MessageClient
+from network.Message import MessageClient
 
 
 class FileSender(QThread):  # 文件发送者
@@ -34,6 +34,7 @@ class FileSender(QThread):  # 文件发送者
                     self.sendall(send_data)
                 else:
                     break
+            self.msleep(1)
             self.sendall(str('tag:' + file_name + ':close').encode())
         self._print.emit('[File]: ' + file_name + ' send ok !')
 

@@ -5,7 +5,7 @@ import socket
 import sys
 
 
-from message.utils import DataHandler
+from network.utils import DataHandler
 
 BUFFER_SIZE = 61440
 

@@ -8,7 +8,7 @@ import struct
 import pickle
 import threading
 
-from message.utils import DataHandler, SSLTools
+from network.utils import DataHandler, SSLTools
 
 dataHandler = DataHandler()
 

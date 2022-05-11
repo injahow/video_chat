@@ -9,11 +9,11 @@ from PyQt5.QtGui import QPixmap, QCursor, QImageReader
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMainWindow, QMessageBox, QMenu, QAction, QFileDialog
 
 from ui.Ui_main import Ui_MainWindow
-from message.Message import MessageServer, MessageClient
-from module.Video import VideoSender
-from module.Audio import AudioSender, AudioPlayer
-from module.File import FileSender, FileDownloader
-from module.VideoLive import LiveServer, LiveClient
+from network.Message import MessageServer, MessageClient
+from service.Video import VideoSender
+from service.Audio import AudioSender, AudioPlayer
+from service.File import FileSender, FileDownloader
+from service.VideoLive import LiveServer, LiveClient
 
 
 class MyMainForm(QMainWindow, Ui_MainWindow):
