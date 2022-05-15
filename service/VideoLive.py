@@ -6,7 +6,7 @@ from service.Video import VideoSender
 from PyQt5.QtCore import QThread, pyqtSignal
 
 
-class LiveClient(Client, VideoSender):  # 直播发送方
+class LiveClient(Client, VideoSender):  # 广播发送方
 
     def __init__(self, broadcast_ip: str, key: str, video_type: str):
         Client.__init__(self, broadcast_ip)
@@ -18,7 +18,7 @@ class LiveClient(Client, VideoSender):  # 直播发送方
         self.sendto(data)
 
 
-class LiveServer(Server, QThread):  # 直播接收方
+class LiveServer(Server, QThread):  # 广播接收方
     #  定义信号
     _log = pyqtSignal(str)
     _video = pyqtSignal(bytes)
