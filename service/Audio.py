@@ -42,9 +42,9 @@ class AudioSender(QThread):  # 发送
         p = self.pyaudio
         target = '立体声混音'  # 需要系统打开立体声混音声卡
         for i in range(p.get_device_count()):
-            devInfo = p.get_device_info_by_index(i)
-            # print(devInfo)
-            if devInfo['name'].find(target) >= 0 and devInfo['hostApi'] == 0:
+            device_info = p.get_device_info_by_index(i)
+            # print(device_info)
+            if device_info['name'].find(target) >= 0 and device_info['hostApi'] == 0:
                 return i
         print('无法找到内录设备!')
         return None
