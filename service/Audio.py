@@ -25,12 +25,29 @@ class AudioSender(QThread):  # 发送
     def quit(self):
         self.closed = True
 
-    def open_server(self):
+    def open_server(self, audio_type):
         try:
-            self.stream = self.pyaudio.open(
-                format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+            if audio_type == 'system':
+                self.stream = self.pyaudio.open(
+                    format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
+                    input_device_index=self.find_internal_recording_device(),
+                    frames_per_buffer=CHUNK)
+            else:
+                self.stream = self.pyaudio.open(
+                    format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
         except:
             self._print.emit('[audio]: open error !')
+
+    def find_internal_recording_device(self):
+        p = self.pyaudio
+        target = '立体声混音'  # 需要系统打开立体声混音声卡
+        for i in range(p.get_device_count()):
+            devInfo = p.get_device_info_by_index(i)
+            # print(devInfo)
+            if devInfo['name'].find(target) >= 0 and devInfo['hostApi'] == 0:
+                return i
+        print('无法找到内录设备!')
+        return None
 
     def close_server(self):
 

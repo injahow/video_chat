@@ -23,6 +23,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self, parent)
 
         self.video_type = 'camera'  # camera or desktop
+        self.audio_type = 'record'  # record or system
         self.is_full_video = False
         self.to_ip = '127.0.0.1'
         self.broadcast_ip = '192.168.31.255'
@@ -97,9 +98,15 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.action_per4.triggered.connect(percent_action(7/10))
         self.action_per5.triggered.connect(percent_action(3/5))
 
+        def audio_action(audio_type):
+            def action():
+                self.audio_type = audio_type
+            return action
+        self.action_audio_t1.triggered.connect(audio_action('record'))
+        self.action_audio_t2.triggered.connect(audio_action('system'))
+
         self.pushButton_connect.clicked.connect(self.con_connect_btn)  # 开启连接
         self.pushButton_close.clicked.connect(self.close_all_threads)  # 关闭连接
-
         self.pushButton_start_vs.clicked.connect(self.con_video_btn)  # 视频
         self.pushButton_start_as.clicked.connect(self.con_audio_btn)  # 音频
         self.pushButton_start_fs.clicked.connect(self.con_file_btn)  # 文件
@@ -309,7 +316,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
             return
         self.audio_sender = AudioSender()
         self.audio_sender.set_sender(self.msg_client)
-        self.audio_sender.open_server()
+        self.audio_sender.open_server(self.audio_type)
         self.audio_sender.start()
 
     def close_audio_sender(self):

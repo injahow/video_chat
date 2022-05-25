@@ -102,7 +102,7 @@ class VideoSender(QThread):
             send_data = self.qImg2bytes(new_q_img)
             self.sendall(send_data)
             if self.video_type == 'desktop':
-                self.msleep(100)
+                self.msleep(60)
             else:
                 self.msleep(50)
         pass
